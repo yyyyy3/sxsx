@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Circles</title> 
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            background-color: #add8e6; /* 設置背景顏色為淡藍色 */
+        }
+
+        iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 80%;
+            transform: translate(-50%, -50%);
+            border: none;
+            z-index: 6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* 預設隱藏 */
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #content {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* 移到右邊 */
+            display: flex;
+            flex-direction: row; /* 水平排列 */
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            z-index: 5;
+        }
+
+        .box {
+            width: 120px;
+            height: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            background-color: blue;
+        }
+
+        /* 自我介紹文字區域 */
+        #intro-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            z-index: 7;
+            display: none; /* 預設隱藏 */
+        }
+
+        /* 測驗卷區域 */
+        #quiz-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 7;
+            display: none; /* 預設隱藏 */
+        }
+
+        #quiz-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            margin-bottom: 15px;
+        }
+
+        /* 動畫小人 */
+        .character {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: none; /* 預設隱藏 */
+            animation: bounce 1s infinite alternate ease-in-out; /* 跳動動畫 */
+            z-index: 9999; /* 確保圖片在最上層 */
+        }
+
+        /* 小人跳動動畫 */
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); } /* 向上跳 20px */
+        }
+    </style>
+</head>
+<body>
+    <!-- 畫布容器 -->
+    <div id="canvas-container">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+        <script src="sketch.js"></script>
+    </div>
+
+    <!-- 內嵌的網站 -->
+    <iframe id="info-frame"></iframe>
+
+    <!-- 自我介紹文字 -->
+    <div id="intro-text">你好，我是鍾依縈，我喜歡畫畫</div>
+
+    <!-- 教學影片 -->
+    <iframe id="video-player" src="https://drive.google.com/file/d/1N9PQwNwBLEwVYSOXVGO3XDwgwf_j6m4v/preview" allow="autoplay"></iframe>
+
+    <!-- 測驗卷區域 -->
+    <div id="quiz-container">
+        <h2>測驗卷</h2>
+
+        <div class="question">
+            <p>1. 5 + 3 = ?</p>
+            <label><input type="radio" name="q1" value="6"> 6</label><br>
+            <label><input type="radio" name="q1" value="8"> 8</label><br>
+            <label><input type="radio" name="q1" value="10"> 10</label>
+        </div>
+
+        <div class="question">
+            <p>2. 12 - 7 = ?</p>
+            <label><input type="radio" name="q2" value="4"> 4</label><br>
+            <label><input type="radio" name="q2" value="5"> 5</label><br>
+            <label><input type="radio" name="q2" value="6"> 6</label>
+        </div>
+
+        <div class="question">
+            <p>3. 6 × 4 = ?</p>
+            <label><input type="radio" name="q3" value="20"> 20</label><br>
+            <label><input type="radio" name="q3" value="24"> 24</label><br>
+            <label><input type="radio" name="q3" value="28"> 28</label>
+        </div>
+
+        <button onclick="submitQuiz()">提交答案</button>
+    </div>
+
+    <!-- 右側的按鈕區 -->
+    <div id="content">
+        <div class="box" onclick="showCharacterAndWebsite(this, 'https://hackmd.io/@NHV8Fba9QxOit5ByvW7rfw/rJZpvsfC1l')">作品集</div>
+        <div class="box" onclick="showQuiz()">測驗卷</div>
+        <div class="box" onclick="showIntro()">自我介紹</div>
+        <div class="box" onclick="showVideo()">教學影片</div>
+    </div>
+
+    <!-- 動畫小人 -->
+    <img src="8.png" class="character" id="character" alt="Character">
+
+    <script>
+        function showCharacterAndWebsite(button, url) {
+            const character = document.getElementById('character');
+            const iframe = document.getElementById('info-frame');
+            const introText = document.getElementById('intro-text');
+            const quizContainer = document.getElementById('quiz-container');
+            const videoPlayer = document.getElementById('video-player');
+
+            // 隱藏其他內容
+            introText.style.display = 'none';
+            quizContainer.style.display = 'none';
+            videoPlayer.style.display = 'none';
+
+            // 顯示小人
+            character.style.display = 'block';
+
+            // 顯示對應的網站
+            iframe.src = url;
+            iframe.style.display = 'block';
+        }
+
+        function showIntro() {
+            const iframe = document.getElementById('info-frame');
+            const character = document.getElementById('character');
+            const quizContainer = document.getElementById('quiz-container');
+            const videoPlayer = document.getElementById('video-player');
+
+            // 隱藏其他內容
+            character.style.display = 'none';
+            quizContainer.style.display = 'none';
+            videoPlayer.style.display = 'none';
+
+            // 顯示自我介紹頁面
+            iframe.src = "http://www.et.tku.edu.tw";
+            iframe.style.display = 'block';
+        }
+
+        function showQuiz() {
+            const quizContainer = document.getElementById('quiz-container');
+            const iframe = document.getElementById('info-frame');
+            const character = document.getElementById('character');
+            const introText = document.getElementById('intro-text');
+            const videoPlayer = document.getElementById('video-player');
+
+            // 隱藏其他內容
+            iframe.style.display = 'none';
+            character.style.display = 'none';
+            introText.style.display = 'none';
+            videoPlayer.style.display = 'none';
+
+            // 顯示測驗卷
+            quizContainer.style.display = 'block';
+        }
+
+        function showVideo() {
+            const videoPlayer = document.getElementById('video-player');
+            const iframe = document.getElementById('info-frame');
+            const character = document.getElementById('character');
+            const introText = document.getElementById('intro-text');
+            const quizContainer = document.getElementById('quiz-container');
+
+            // 隱藏其他內容
+            iframe.style.display = 'none';
+            character.style.display = 'none';
+            introText.style.display = 'none';
+            quizContainer.style.display = 'none';
+
+            // 顯示教學影片
+            videoPlayer.style.display = 'block';
+        }
+
+        function submitQuiz() {
+            const answers = {
+                q1: "8",
+                q2: "5",
+                q3: "24"
+            };
+
+            let correct = 0;
+            for (const [key, value] of Object.entries(answers)) {
+                const selected = document.querySelector(`input[name="${key}"]:checked`);
+                if (selected && selected.value === value) {
+                    correct++;
+                }
+            }
+
+            alert(`你答對了 ${correct} 題！`);
+        }
+    </script>
+</body>
+</html>
